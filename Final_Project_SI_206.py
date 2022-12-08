@@ -8,6 +8,7 @@ from nba_api.stats.static import players
 from nba_api.stats.endpoints import drafthistory
 from nba_api.stats.static import teams 
 from nba_api.stats.endpoints import commonplayerinfo
+import time
 
 custom_headers  = {
     'Connection': 'keep-alive',
@@ -22,19 +23,29 @@ custom_headers  = {
     'Accept-Language': 'en-US,en;q=0.9',
 }
 
-player_list = players.get_active_players()
+player_list = players.get_players()
 print(player_list[24])
-for i in range(10):
-    player_info = commonplayerinfo.CommonPlayerInfo(player_id = player_list[i]['id'], headers = custom_headers, timeout = 100)
+print(len(player_list))
+player_dict = {}
+num = 0
+for i in range(len(player_list)):
+    data_dict = {}
+    player_info = commonplayerinfo.CommonPlayerInfo(player_id = player_list[i]['id'], headers = custom_headers, timeout = 1000)
     data = player_info.common_player_info.get_json()
     player_data = json.loads(data)
-    print("ID: " + str(player_data["data"][0][0]))
-    print("First Name: " + player_data["data"][0][1])
-    print("Last Name: " + player_data["data"][0][2])
-    print("College: " + player_data["data"][0][8])
-    print("Draft Year: " + str(player_data["data"][0][29]))
-    print("Draft Round: " + str(player_data["data"][0][30]))
-    print("Draft Pick: " + str(player_data["data"][0][31]))
+    if int(player_data["data"][0][24]) >= 2000:
+        data_dict["First Name"] = player_data["data"][0][1]
+        data_dict["Last Name"] = player_data["data"][0][2]
+        data_dict["College"] = player_data["data"][0][8]
+        data_dict["Draft Year"] = player_data["data"][0][29]
+        data_dict["Draft Round"] = player_data["data"][0][30]
+        data_dict["Draft Pick"] = player_data["data"][0][31]
+        player_dict[player_data["data"][0][0]] = data_dict
+        print(data_dict)
+    num += 1
+    time.sleep(1)
+print(player_dict)
+print(len(player_dict))
 
 # Create Relevant Draft Data List
 def create_draft_data(id):
@@ -42,27 +53,30 @@ def create_draft_data(id):
     player_info = commonplayerinfo.CommonPlayerInfo(player_id = id, headers = custom_headers, timeout = 100)
     data = player_info.common_player_info.get_json()
     player = json.loads(data)
-    output_list.append(int(player["data"][0][0])) # Player ID
-    output_list.append(player["data"][0][1]) # First Name
-    output_list.append(player["data"][0][2]) # Last Name
-    if player["data"][0][29] == "Undrafted":
-        output_list.append(int(player["data"][0][24])) # Rookie Year for Undrafted Players
-    else:
-        output_list.append(int(player["data"][0][29])) # Draft Year
-    output_list.append(player["data"][0][30]) # Draft Round
-    output_list.append(player["data"][0][31]) # Draft Pick
+    if int(player["data"][0][25]) > 2000:
+        output_list.append(int(player["data"][0][0])) # Player ID
+        output_list.append(player["data"][0][1]) # First Name
+        output_list.append(player["data"][0][2]) # Last Name
+        if player["data"][0][29] == "Undrafted":
+            output_list.append(int(player["data"][0][25])) # Rookie Year for Undrafted Players
+        else:
+            output_list.append(int(player["data"][0][29])) # Draft Year
+        output_list.append(player["data"][0][30]) # Draft Round
+        output_list.append(player["data"][0][31]) # Draft Pick
+        time.sleep(1)
+    print(output_list)
     return output_list
 
 # Create Relevant Player list (Drafted 2010-2015)
 def create_yearly_player_list(year):
-    output_list = []
+    output_dict = {}
     player_list = players.get_players()
     for player in player_list:
         id = player['id']
         data = create_draft_data(id)
         if data[3] == year:
-            output_list.append(data)
-    return output_list
+            output_dict[id] = data
+    return output_dict
 
 
 
@@ -90,6 +104,14 @@ def main():
 
 
 #main()
+
+
+'''id = '76006'
+player_info = commonplayerinfo.CommonPlayerInfo(player_id = id, headers = custom_headers, timeout = 100)
+data = player_info.common_player_info.get_json()
+player = json.loads(data)
+print(player)'''
+
 
 #ayton = drafthistory.DraftHistory(league_id = 00, season_year_nullable = 2018, round_num_nullable = 1, round_pick_nullable = 1,
      #headers = custom_headers, timeout=3)
