@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-def getResponse(cur, conn):
+def getResponse(cur, conn, count):
 
     url = "https://api-nba-v1.p.rapidapi.com/players"
 
@@ -31,18 +31,17 @@ def getResponse(cur, conn):
                 last_name = r['lastname']
                 country = r['birth']['country']
                 id = r['id']
-                addToTable(cur, conn, id, start_year, first_name, last_name, country)
+                addToTable(cur, conn, id, start_year, first_name, last_name, country, count)
 
 
-def addToTable(cur, conn, id, s, f, l, c):
+def addToTable(cur, conn, id, s, f, l, c, count):
 
-    # cur.execute("SELECT count(country) FROM Country_info")
-    # if(( cur.fetchall()[0][0] - count[0] ) >= 25):
-    #     print("EXITS")
-    #     exit(0)
-    # else:
-    cur.execute("INSERT OR IGNORE INTO Country_Info (id, start, first_name, last_name, country) VALUES (?,?,?,?,?)", (id, s, f, l, c))
-    conn.commit()
+    cur.execute("SELECT count(country) FROM Country_info")
+    if(( cur.fetchall()[0][0] - count[0] ) >= 25):
+        exit(0)
+    else:
+        cur.execute("INSERT OR IGNORE INTO Country_Info (id, start, first_name, last_name, country) VALUES (?,?,?,?,?)", (id, s, f, l, c))
+        conn.commit()
 
 # Create Database
 def setUpDatabase(db_name):
@@ -124,11 +123,14 @@ def draw_graph():
 def main():
     #SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('poole_party.db')
-    cur.execute("DROP TABLE IF EXISTS Country_Info") 
+    # cur.execute("DROP TABLE IF EXISTS Country_Info") 
     cur.execute("CREATE TABLE IF NOT EXISTS Country_Info (id INTEGER PRIMARY KEY, start INTEGER, first_name TEXT, last_name TEXT, country TEXT)") 
     conn.commit()
 
-    getResponse(cur, conn)
+    cur.execute("SELECT count(country) FROM Country_info")
+    count = [cur.fetchall()[0][0]]
+
+    getResponse(cur, conn, count)
     calculate(cur, conn)
     draw_graph()
 
