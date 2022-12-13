@@ -1,0 +1,23 @@
+Total NBA Players examined: 151
+Players from USA: 127
+Players from outside USA: 24
+Players from Serbia: 1
+Players from Germany: 2
+Players from Finland: 1
+Players from France: 3
+Players from Turkey: 1
+Players from Slovenia: 1
+Players from South Sudan: 1
+Players from Sudan: 1
+Players from Lithuania: 2
+Players from Angola: 1
+Players from United Kingdom: 1
+Players from Gabon: 1
+Players from Argentina: 1
+Players from Australia: 1
+Players from Jamaica: 1
+Players from Montenegro: 1
+Players from Bahamas: 1
+Players from Nigeria: 1
+Players from Japan: 1
+Players from Canada: 1
